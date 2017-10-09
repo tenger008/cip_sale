@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kewei.manager.mapper.ContentManagerMapper">
+   <insert id="insert_contents">
+    insert into content(contents,menuid) values
+   (#{0},#{1})
+    </insert>
+    
+     <update id="update_content">
+     update content set contents = #{0} 
+                  	where menuid = #{1}
+    </update>
+    
+    <select id="query_contents_menuId" parameterType="long" resultType="kewei.manager.bean.Content">
+    select id,menuid, contents ,menuname ,jsdid from content where menuId=#{menuId}
+    </select>
+    
+    <select id="query_contentDto_by_id" parameterType="Long" resultType="kewei.manager.bean.ContentDto">
+    select a.id id,contents,b.name menuName,c.name jsdName from content a left join menu b on a.menuid = b.id left JOIN
+    jishudian c on a.jsdid=c.id where a.id = #{id}
+    </select>
+    
+    <delete id="delete_content_id" parameterType="Long">
+    delete from content where id = #{id}
+    </delete>
+    
+    <delete id="delete_contents_ids">
+        delete from content where id in
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+        #{id}
+        </foreach>
+    </delete>
+    
+    <insert id="insert_content">
+   insert into content(contents,menuid,jsdid,menuname) values
+   (#{0},#{1},#{2},#{3})
+    </insert>
+    
+    <select id="get_all_contentDto" resultType="kewei.manager.bean.ContentDto">
+    select a.id id,contents,b.name,c.name from content a left join menu b on a.menuid = b.id left JOIN
+    jishudian c on a.jsdid=c.id  
+    </select>
+    
+     <select id="queryContents4Page" resultType="kewei.manager.bean.ContentDto">
+    select a.id id,contents,b.name jsdName,c.name menuName from content a left join 
+	jishudian b on a.jsdid=b.id left join menu c on a.menuid = c.id
+        <where>
+            <if test="querytext != null">
+            and b.name  like concat('%', #{querytext}, '%') 
+            </if>
+        </where>
+         limit #{start}, #{size} 
+    </select>
+    
+     <select id="queryContentCount4Page" resultType="int">
+    select count(*) from content a left join 
+	jishudian b on a.jsdid=b.id left join menu c on a.menuid = c.id
+        <where>
+            <if test="querytext != null">
+            and b.name like concat('%', #{querytext}, '%')   
+            </if>
+        </where>
+   </select>
+</mapper>

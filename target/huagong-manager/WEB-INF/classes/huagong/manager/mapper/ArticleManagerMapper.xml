@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kewei.manager.mapper.ArticleManagerMapper">
+    
+    <select id="query_articleId_by_title_author" resultType="Long" parameterType="kewei.manager.bean.Article">
+    select id from article where title=#{0} and author=#{1}
+    </select>
+    
+    <update id="update_article_pdf" >
+    update article set pdf=#{1} where id=#{0}
+    </update>
+    
+     <update id="update_article" parameterType="kewei.manager.bean.Article">
+     update article set title=#{title} , author=#{author} ,sourceid=#{sourceid},sourcename=#{sourcename},pbdate=#{pbdate}
+  	,type=#{type},issue=#{issue},volume=#{volume},summary=#{summary} where id=#{id} 
+    </update>
+    
+    <select id="query_jsdids_by_articleId" resultType="Long">
+    select jishudian_id jsdids from jishudian_article where article_id=#{id}
+    </select>
+    
+    <select id="query_articleDto_by_id" parameterType="Long" resultType="kewei.manager.bean.ArticleDto">
+    select a.id,issue,sourceid,authoraffiliation authorAffiliation,author,pdf,pbdate,a.summary,title,type,volume,sourcename sourceName
+    from article a where id = #{id}
+    </select>
+    
+    <delete id="delete_article_id" parameterType="Long">
+    delete from article where id = #{id}
+    </delete>
+    
+    <delete id="delete_jsdArticle_articleId" parameterType="Long">
+    delete from jishudian_article where article_id = #{id}
+    </delete>
+    
+    <delete id="delete_articles_ids">
+        delete from article where id in
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+        #{id}
+        </foreach>
+    </delete>
+    
+    <select id="query_jsdId_by_jsdName" parameterType="String" resultType="Long">
+    select id from jishudian where name in
+    <foreach collection="names" item="names" open="(" close=")" separator=",">
+        #{names}
+    </foreach>
+    </select>
+    
+    <select id="query_jsdName_by_jsdId" parameterType="Long" resultType="String">
+    select name from jishudian where id=#{id}
+    </select>
+    
+    <select id="query_allJsdName" resultType="String">
+    select name from jishudian
+    </select>
+    
+    <select id="query_allSourceName" resultType="String">
+    select name from source
+    </select>
+    
+    <select id="query_fieldid_by_fieldName" resultType="Long">
+    select id from field where name = #{fieldName}
+    </select>
+    
+    <insert id="insert_article" parameterType="kewei.manager.bean.Article">
+    insert into article (id,title,img,author,authoraffiliation,sourceid,sourcename,pbdate,pdf,type,issue,issn,
+    volume,language,summary,subjects,authorrp
+	)values(#{id},#{title},#{img},#{author},#{authoraffiliation},#{sourceid},#{sourcename},#{pbdate},#{pdf}
+  	,#{type},#{issue},#{issn},#{volume},#{language},#{summary},#{subjects},#{authorrp})
+    </insert>
+    
+    <insert id="insert_articles" parameterType="kewei.manager.bean.Article">
+    insert into article values
+    <foreach collection="list" item="item" separator=",">
+			(#{item.id},#{item.title},#{item.author},#{item.sourceid},#{item.sourcename}
+			,#{item.pbdate},#{item.type},#{item.issue},#{item.volume},#{item.summary})
+		</foreach>
+    </insert>
+    
+     <insert id="insert_article_jsd" parameterType="kewei.manager.bean.Article_Jsd">
+    insert into jishudian_article (article_id,jishudian_id,realizetime,isforecast) values
+    <foreach collection="list" item="item" separator=",">
+			(#{item.articleId},#{item.jsdId},#{item.realizetime},#{item.isforecast})
+	</foreach>
+    </insert>
+    
+    <select id="get_all_articleDto" resultType="kewei.manager.bean.ArticleDto">
+   select a.id,issue,sourceid,author,pdf,pbdate,a.summary,title,type,volume,sourcename sourceName
+    from article a 
+    </select>
+	
+	<select id="query_sourceId" resultType="Long" parameterType="kewei.manager.bean.ArticleDto">
+	select id from source where name = #{sourceName}
+	</select>
+	
+     <select id="queryArticles4Page" resultType="kewei.manager.bean.ArticleDto">
+     select a.id,issue,sourceid,authoraffiliation authorAffiliation,author,pdf,pbdate,a.summary,title,type,volume,sourcename sourceName
+    from article a left join jishudian_article b on a.id=b.article_id left join jishudian c on b.jishudian_id = c.id 
+        <where>
+            and c.name  = #{jsdName}
+        </where>
+         limit #{start}, #{size} 
+    </select>
+    
+     <select id="queryArticleCount4Page" resultType="int">
+    select count(a.id)
+    from article a left join jishudian_article b on a.id=b.article_id left join jishudian c on b.jishudian_id = c.id 
+        <where>
+             and c.name  = #{jsdName}
+        </where>
+   </select>
+</mapper>

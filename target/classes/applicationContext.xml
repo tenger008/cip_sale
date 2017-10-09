@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd">
+
+    <context:component-scan base-package="com.cip.sale.service">
+		<context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+	</context:component-scan>
+	
+	<context:property-placeholder location="classpath:dbConfig.properties" />
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
+		<property name="driverClassName" value="${driverClassName}" />
+		<property name="url" value="${url}" />
+		<property name="username" value="${jdbc.username}" />
+		<property name="password" value="${jdbc.password}" />
+	</bean>
+
+	<bean id="sqlSessionFactoryBean" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="configLocation" value="classpath:mybatis-config.xml" />
+	</bean>
+
+	<bean id="captchaProducer" class="com.google.code.kaptcha.impl.DefaultKaptcha">  
+	        <property name="config">  
+	            <bean class="com.google.code.kaptcha.util.Config">  
+	                <constructor-arg>  
+	                    <props>  
+	                        <prop key="kaptcha.border">no</prop>  
+	                       <!--  <prop key="kaptcha.border.color">105,179,90</prop>   -->
+	                        <prop key="kaptcha.textproducer.font.color">blue</prop>  
+	                        <prop key="kaptcha.image.width">125</prop>  
+	                        <prop key="kaptcha.image.height">50</prop>  
+	                        <prop key="kaptcha.textproducer.font.size">45</prop>  
+	                        <prop key="kaptcha.session.key">code</prop>  
+	                        <prop key="kaptcha.textproducer.char.length">4</prop>  
+	                        <prop key="kaptcha.textproducer.font.names">宋体,楷体,微软雅黑</prop>  
+	                    </props>  
+	                </constructor-arg>  
+	            </bean>  
+	        </property>  
+	    </bean>
+
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.cip.sale.mapper" />
+	</bean>
+    <!--webservice  -->
+    <bean class="com.cip.user.service.MyWsFactoryBean">
+		<property name="type" value="${loginInf}" />
+		<property name="url" value="${loginInfUrl}" />
+	</bean>
+    <bean class="com.cip.user.service.MyWsFactoryBean">
+		<property name="type" value="${registInf}" />
+		<property name="url" value="${registInfUrl}" />
+	</bean>
+    
+    <!-- 事务管理器 -->
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+	
+	 <!-- - - - - - - spring 事务属性 - - - - - - - -->
+	 <!-- 功能增强器 -->
+    <!-- <tx:advice id="transactionAdvice" transaction-manager="transactionManager">
+    <tx:attributes>
+      <tx:method name="delete*" propagation="REQUIRED"  read-only="false" 
+                            rollback-for="Exception" no-rollback-for="RuntimeException"/>
+      <tx:method name="insert*" propagation="REQUIRED" read-only="false" 
+                            rollback-for="Java.lang.RuntimeException"  />
+      <tx:method name="update*" propagation="REQUIRED" read-only="false" 
+                            rollback-for="java.lang.Exception" />
+      <tx:method name="select*" propagation="SUPPORTS"/>
+      <tx:method name="save*"  propagation="REQUIRED" read-only="false" rollback-for="Exception" />
+      <tx:method name="remove*"  propagation="REQUIRED" read-only="false" rollback-for="Exception" />
+      <tx:method name="add*"  propagation="REQUIRED" read-only="false" rollback-for="Exception" />
+      <tx:method name="up*"  propagation="REQUIRED" read-only="false" rollback-for="Exception" />
+      <tx:method name="*"  propagation="REQUIRED" read-only="false" rollback-for="Exception" />
+    </tx:attributes>
+    </tx:advice> -->
+	
+	  <tx:advice id="transactionAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<tx:method name="*" propagation="REQUIRED" isolation="DEFAULT" rollback-for="java.lang.Exception"/>
+			<tx:method name="query*" read-only="true"/>
+		</tx:attributes>
+	</tx:advice> 
+	
+	<aop:config proxy-target-class="true">
+		<aop:advisor advice-ref="transactionAdvice" pointcut="execution(* huagong.manager.*service.*.*(..))"/>
+	</aop:config>
+<!-- 
+  自定义Realm
+    <bean id="myRealm" class="com.cip.sale.bean.MyRealm"/>  
+
+    安全管理器
+    <bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">  
+      <property name="realm" ref="myRealm"/>  
+    </bean>  
+
+    Shiro过滤器
+    <bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">  
+        Shiro的核心安全接口,这个属性是必须的  
+        <property name="securityManager" ref="securityManager"/>
+        身份认证失败，则跳转到登录页面的配置  
+        <property name="loginUrl" value="/login.jsp"/>
+        权限认证失败，则跳转到指定页面  
+        <property name="unauthorizedUrl" value="/unauthorized.jsp"/>  
+        Shiro连接约束配置,即过滤链的定义  
+        <property name="filterChainDefinitions">  
+            <value>  
+                /login=anon
+                /user/admin*=authc
+                /user/student*/**=roles[teacher]
+                /user/teacher*/**=perms["user:create"]
+            </value>  
+        </property>
+    </bean>  
+
+    保证实现了Shiro内部lifecycle函数的bean执行  
+    <bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor"/>  
+
+    开启Shiro注解
+    <bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator" depends-on="lifecycleBeanPostProcessor"/>  
+        <bean class="org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor">  
+      <property name="securityManager" ref="securityManager"/>  
+    </bean>  -->
+
+</beans>

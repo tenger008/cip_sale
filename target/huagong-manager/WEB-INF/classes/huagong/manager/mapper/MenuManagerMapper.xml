@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kewei.manager.mapper.MenuManagerMapper">
+    <select id="query_menuId_by_jsd_menuName" resultType="Long" parameterType="kewei.manager.bean.Menu">
+    select id from menu where jsdid=#{0} and name = #{1}
+    </select>
+     
+    <select id="get_all_menuDto" resultType="kewei.manager.bean.MenuDto">
+    select a.id id,b.name fMenuName ,a.name menuName,c.name jsdName from menu a  left join menu b on a.fid = b.id LEFT JOIN
+    jishudian c on a.jsdid = c.id 
+    </select>
+    
+    <select id="query_fid_menuId" parameterType="long" resultType="long">
+    select fid from menu where id=#{id}
+    </select>
+    
+    <select id="query_jsdId_by_menuId" resultType="Long" parameterType="Long">
+    select jsdid from menu where id=#{id}
+    </select>
+    
+    <insert id="insert_menus" parameterType="kewei.manager.bean.Menu">
+    insert into menu values
+    <foreach collection="list" item="item" separator=",">
+			(#{item.id},#{item.code},#{item.fid},#{item.jsdid},#{item.level},#{item.name},#{item.url},#{item.isend},#{item.hasson})
+		</foreach>
+    </insert>
+    
+   <update id="update_menu" parameterType="kewei.manager.bean.Menu">
+   update menu set fid=#{fid},jsdid=#{jsdid},level=#{level},
+   				   name=#{name},isend=#{isend},hasson=#{hasson} where id=#{id}
+   </update>
+    
+    <select id="query_menuFid_by_fMenuName" resultType="Long">
+    select id from menu where name = #{0} and jsdid=#{1}
+    </select>
+    
+    <select id="query_menu_by_jsdName" resultType="int">
+    select count(a.id) from menu a left join jishudian b on a.jsdid = b.id where b.name=#{jsdName}
+    </select>
+    
+    <select id="query_jiShuDian_by_jsdName" resultType="Long">
+    select id from jishudian where name = #{jsdName}
+    </select>
+    
+    <insert id="insert_menu" parameterType="kewei.manager.bean.Menu">
+    insert into menu(fid,jsdid,level,name,isend,hasson) values(#{fid},#{jsdid},#{level},#{name},#{isend},#{hasson})
+    </insert>
+    
+    <select id="query_menu_by_jsdid" parameterType="Long" resultType="kewei.manager.bean.Menu">
+    select * from menu where jsdid = #{jsdid}
+    </select>
+    
+    <select id="query_menuDto_by_id" parameterType="Long" resultType="kewei.manager.bean.MenuDto">
+    select a.id id,b.name fMenuName ,a.name menuName,c.name jsdName ,a.isend,a.hasson,a.level from menu a  left join menu b on a.fid = b.id LEFT JOIN
+    jishudian c on a.jsdid = c.id where a.id = #{id}
+    </select>
+    
+     <select id="queryMenus4Page" resultType="kewei.manager.bean.MenuDto">
+    select a.id id,b.name fMenuName ,a.name menuName,c.name jsdName from menu a  left join menu b on a.fid = b.id LEFT JOIN
+    jishudian c on a.jsdid = c.id
+        <where>
+            <if test="querytext != null">
+            and c.name  like concat('%', #{querytext}, '%') 
+            </if>
+        </where>
+         limit #{start}, #{size} 
+    </select>
+     
+    
+   <select id="queryMenuCount4Page" resultType="int">
+    select count(*) from menu a  left join menu b on a.fid = b.id LEFT JOIN
+    jishudian c on a.jsdid = c.id
+        <where>
+            <if test="querytext != null">
+            and c.name like concat('%', #{querytext}, '%')   
+            </if>
+        </where>
+   </select>
+    
+    <delete id="delete_menu_id" parameterType="Long">
+     delete from menu where id = #{id}
+    </delete>
+    
+    <select id="query_maxId" resultType="long">
+    select MAX(id) from menu
+    </select>
+    
+     <select id="select_menuId_fid" parameterType="long" resultType="long">
+    select id from menu where fid=#{id} 
+    </select>
+    
+     <delete id="delete_menus_ids">
+        delete from menu where id in
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+        #{id}
+        </foreach>
+    </delete>
+    
+    <delete id="delete_menu_jsdid" parameterType="Long">
+     delete from menu where jsdid=#{jsdid}
+    </delete>
+</mapper>

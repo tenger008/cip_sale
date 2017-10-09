@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kewei.manager.mapper.JsdManagerMapper">
+   <insert id="insert_jsds" parameterType="kewei.manager.bean.JiShuDian">
+    insert into jishudian values
+    <foreach collection="list" item="item" separator=",">
+			(#{item.id},#{item.jsds},#{item.jsdid},#{item.menuid},#{item.menuname},#{item.img})
+		</foreach>
+    </insert>
+    
+    <select id="query_field" resultType="String">
+    select name fieldName from field
+    </select>
+    
+    <insert id="insert_company" parameterType="kewei.manager.bean.Company">
+    insert into company(jsdid,name,lat,lon,addr) values (#{jsdid},#{name},#{lat},#{lon},#{addr})
+    </insert>
+    
+    <select id="query_jsdId_by_jsdName" resultType="long" parameterType="String">
+    select id from jishudian where name=#{jsdName}
+    </select>
+    
+    <select id="query_jsd_by_fieldName" parameterType="String" resultType="String">
+    select b.name jsdName from field a left join jishudian b on a.id = b.fieldid where a.name=#{fieldName}
+    </select>
+    <select id="query_GenZongJsd_by_fieldName" parameterType="String" resultType="String">
+    select b.name jsdName from field a left join jishudian b on a.id = b.fieldid where a.name=#{fieldName}
+    and b.isgenzongjishudian=1
+    </select>
+    
+     <update id="update_jsd" >
+     update jishudian set civil=#{civil},fieldid=#{fieldid},international=#{international},
+     isgenzongjishudian=#{isgenzongjishudian},isqianyan=#{isqianyan},isqianyanjishudian=#{isqianyanjishudian},
+     ismainfield=#{ismainfield},year=#{year} where name=#{name}
+    </update>
+    
+    <select id="query_jsdDto_by_id" parameterType="Long" resultType="kewei.manager.bean.JsdDto">
+    select a.id,a.name jsdName,civil,international,case WHEN isgenzongjishudian ='1' then '是' else '否' end as isGenZongJsd,
+    isqianyan isQianYan,case WHEN isqianyanjishudian ='1' then '是' else '否' end as isQianYanJsd ,
+    case WHEN ismainfield ='1' then '是' else '否' end as isMainField ,year,
+    score,scorejigou scoreJigou
+    ,scorezazhi scoreZazhi,scoredb scoreDb,scoreexpert scoreExpert
+    ,b.name fieldName from jishudian a left join field b on a.fieldid=b.id where a.id = #{id}
+    </select>
+    
+    <delete id="delete_jsd_id" parameterType="Long">
+    delete from jishudian where id = #{id}
+    </delete>
+    
+    <delete id="delete_jsds_ids">
+        delete from jishudian where id in
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+        #{id}
+        </foreach>
+    </delete>
+    
+    <select id="query_fieldid_by_fieldName" resultType="Long">
+    select id from field where name = #{fieldName}
+    </select>
+    
+    <insert id="insert_jsd" parameterType="kewei.manager.bean.JiShuDian">
+    insert into jishudian (civil,fieldid,international,num,isgenzongjishudian,isqianyan,
+    isqianyanjishudian,ismainfield,name,year,updatetime,img,definition,enname)values(#{civil},#{fieldid},#{international},#{num},#{isgenzongjishudian},#{isqianyan},#{isqianyanjishudian},#{ismainfield}
+  	,#{name},#{year},#{updatetime},#{img},#{definition},#{en_name})
+    </insert>
+    
+    <insert id="insert_field" parameterType="String">
+    insert into field(name)values(#{0})
+    </insert>
+    
+    <select id="get_all_jsdDto" resultType="kewei.manager.bean.JsdDto">
+    select a.id,a.name jsdName,year,score,scorejigou scoreJigou
+    ,scorezazhi scoreZazhi,scoredb scoreDb,scoreexpert scoreExpert
+    ,b.name fieldName from jishudian a left join field b on a.fieldid=b.id
+    </select>
+    
+     <select id="queryJsds4Page" resultType="kewei.manager.bean.JsdDto">
+    select a.id,a.name jsdName,year,score,scorejigou scoreJigou
+    ,scorezazhi scoreZazhi,scoredb scoreDb,scoreexpert scoreExpert
+    ,b.name fieldName from jishudian a left join field b on a.fieldid=b.id
+        <where>
+            and b.name = #{fieldName} 
+        </where>
+        ${order} 
+         limit #{start}, #{size} 
+    </select>
+    
+     <select id="queryJsdCount4Page" resultType="int">
+    select count(a.id) from jishudian a left join field b on a.fieldid=b.id
+        <where>
+            and b.name = #{fieldName}
+        </where>
+   </select>
+</mapper>

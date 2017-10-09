@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kewei.manager.mapper.TestMapper">
+	<select id="select_test" resultType="int">
+		select id , name  from
+		field
+	</select>
+
+	<select id="select_field" resultType="kewei.manager.bean.Field">
+		select id , name  from
+		field
+	</select>
+
+	<select id="select_jsd_by_field" resultType="kewei.manager.bean.JiShuDian">
+		select id,fieldid,name
+		from
+		jishudian where fieldid = #{id}
+	</select>
+
+    <select id="select_source" resultType="kewei.manager.bean.Source">
+     select id ,name from source
+    </select>
+</mapper>
