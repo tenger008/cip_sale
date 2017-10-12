@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:context="http://www.springframework.org/schema/context"
 	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:p="http://www.springframework.org/schema/p"
 	xsi:schemaLocation="
        http://www.springframework.org/schema/beans
        http://www.springframework.org/schema/beans/spring-beans.xsd
@@ -38,7 +40,7 @@
 		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
 		<property name="prefix" value="/WEB-INF/"></property>
 		<property name="suffix" value=".jsp"></property>
-	</bean>
+	</bean> 
 
 	<!-- 3、SpringMVC上传文件时，需要配置MultipartResolver处理器 -->
 	<bean id="multipartResolver"
@@ -48,7 +50,34 @@
 		 <property name="maxUploadSize" value="104857600"/>
         <property name="maxInMemorySize" value="40960"/>
 	</bean>
-
+<!-- 4、Freemaker配置 -->
+<bean id="freemarkerConfig"  
+	      class="org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer">  
+	    <property name="templateLoaderPath" value="/WEB-INF/ftl/" />  
+	    <property name="freemarkerSettings">  
+	        <props>  
+	            <prop key="defaultEncoding">UTF-8</prop> <!-- ##编码utf8 --> 
+	            <prop key="template_update_delay">0</prop><!-- 关闭模板缓存 --> 
+	            <prop key="default_encoding">UTF-8</prop> <!-- ##编码utf8 -->  
+	            <prop key="number_format">0.##########</prop>  <!-- ##数字显示格式 -->
+	            <prop key="datetime_format">yyyy-MM-dd HH:mm:ss</prop>   <!-- 时间显示格式 -->
+	            <prop key="classic_compatible">true</prop>  <!--用于解决前端报空指针问题-->
+	            <prop key="template_exception_handler">ignore</prop> <!-- 不想把报错信息显示在页面上 --> 
+	        </props>  
+	    </property>  
+	</bean>
+ <bean class="org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver"
+        p:prefix="/" p:suffix=".ftl">
+        <!-- 这里关键是让 cache设置为 false.开发环境下为false, 线上环境是true, 避免所有缓存 -->
+        <property name="cache" value="false" />
+        <property name="viewClass" value="org.springframework.web.servlet.view.freemarker.FreeMarkerView" />
+        <property name="contentType" value="text/html;charset=UTF-8"></property>
+        <property name="exposeRequestAttributes" value="true" />
+        <property name="exposeSessionAttributes" value="true" />
+        <property name="exposeSpringMacroHelpers" value="true" />
+        <property name="requestContextAttribute" value="base"></property>
+        <property name="order" value="0"></property>
+    </bean>
 	<mvc:default-servlet-handler />
 
 </beans>

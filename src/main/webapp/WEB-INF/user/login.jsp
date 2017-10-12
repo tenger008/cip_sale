@@ -1,17 +1,4 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
-    <%@ page isELIgnored="false" %>
-<%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
-<%String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+request.getContextPath()+"/";%>
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
-<html>
-<head>
-<base href="<%=basePath %>" />
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>Insert title here</title>
-</head>
+<%@include file="/WEB-INF/common/css.jsp"%>
 <body>
 <form action="login.do" id="login_login_form" method="post">
 用户名<input class="itxt" type="text"  placeholder="请输入用户名" autocomplete="off" tabindex="1" name="name" />
@@ -29,8 +16,7 @@
 	</div>
     <input type="submit" value="登录" id="sub_btn" />
     </form>
-     <script src="/cip_sale/static/js/jquery/jquery-3.0.0.js"></script>
-    <script src="/cip_sale/static/js/jquery/jquery-form.min.js"></script>
+    <%@include file="/WEB-INF/common/script.jsp"%>
     <script type="text/javascript">
     $("#sub_btn").click(function(){
     	$("#login_login_form").submit();
